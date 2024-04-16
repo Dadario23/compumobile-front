@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -27,6 +29,8 @@ const formSchema = z.object({
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [authenticated, setAuthenticated] = useState<boolean>(false);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -123,11 +127,30 @@ const Login: React.FC = () => {
                 <FormItem>
                   <FormLabel>Contraseña</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Contraseña"
-                      type="password"
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Input
+                        placeholder="Contraseña"
+                        type={showPassword ? "text" : "password"}
+                        {...field}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{
+                          top: "50%",
+                          right: "0.75rem",
+                          transform: "translateY(-50%)",
+                        }}
+                        className="absolute z-10 hover:bg-transparent"
+                      >
+                        {showPassword ? (
+                          <FontAwesomeIcon icon={faEyeSlash} />
+                        ) : (
+                          <FontAwesomeIcon icon={faEye} />
+                        )}
+                      </Button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

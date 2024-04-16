@@ -1,7 +1,7 @@
-import { CardWithForm } from "@/components/CardWithForm";
+import React from "react";
 
-const HomePage = () => {
-  return <CardWithForm />;
+const page = () => {
+  return <div>page</div>;
 };
 
-export default HomePage;
+export default page;
