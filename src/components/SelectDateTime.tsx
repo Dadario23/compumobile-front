@@ -56,10 +56,13 @@ const SelectDateTime = ({ handlePrevStep, handleNextStep }) => {
   useEffect(() => {
     const fetchSchedules = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3001/api/schedules/"
-        );
-        setSchedules(response.data);
+        if (selectedDay) {
+          const isoDate = selectedDay.toISOString();
+          const response = await axios.get(
+            `http://localhost:3001/api/schedules/?date=${isoDate}`
+          );
+          setSchedules(response.data);
+        }
       } catch (error) {
         console.error("Error fetching schedules:", error);
       }
@@ -70,7 +73,7 @@ const SelectDateTime = ({ handlePrevStep, handleNextStep }) => {
     return () => {
       // Cleanup function
     };
-  }, []);
+  }, [selectedDay]);
 
   const footer = selectedDay ? (
     <>
@@ -87,12 +90,6 @@ const SelectDateTime = ({ handlePrevStep, handleNextStep }) => {
       setSelectedDay(new Date(dateTimestamp));
     }
   }, [dateTimestamp]); // Update state when dateTimestamp changes
-
-  // Loguear la fecha en formato de fecha
-  //console.log("Fecha seleccionada:", selectedDay);
-
-  //console.log("Estado global - Hora:", time);
-  //console.log("HORARIOS", schedules);
 
   return (
     <form>
@@ -123,6 +120,7 @@ const SelectDateTime = ({ handlePrevStep, handleNextStep }) => {
                 required
                 onValueChange={handleHourChange}
                 value={selectedHour}
+                disabled={!selectedDay}
               >
                 <SelectTrigger id="hour">
                   <SelectValue placeholder="Select" />
