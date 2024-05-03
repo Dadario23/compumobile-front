@@ -21,13 +21,13 @@ const RepairForm = () => {
     setStep(step - 1);
   };
 
-  const handleChange = (e) => {
+  /* const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
     });
-  };
+  }; */
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -38,26 +38,15 @@ const RepairForm = () => {
 
   return (
     <div>
-      {step === 1 && (
-        <FormDeviceCheck
-          formData={formData}
-          setFormData={setFormData}
-          handleNextStep={handleNextStep}
-          handleChange={handleChange} // Pasar handleChange a FormDeviceCheck
-        />
-      )}
+      {step === 1 && <FormDeviceCheck handleNextStep={handleNextStep} />}
       {step === 2 && (
         <SelectDateTime
-          formData={formData}
-          setFormData={setFormData}
           handlePrevStep={handlePrevStep}
           handleNextStep={handleNextStep}
-          handleChange={handleChange} // Pasar handleChange a SelectDateTime
         />
       )}
       {step === 3 && (
         <SummaryConfirmation
-          formData={formData}
           handlePrevStep={handlePrevStep}
           handleSubmit={handleSubmit}
         />

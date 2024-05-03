@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -9,14 +10,40 @@ import {
 } from "./ui/card";
 
 import { useSelector } from "react-redux";
+import axios from "axios";
 
-const SummaryConfirmation = ({ handlePrevStep, handleSubmit }) => {
+const SummaryConfirmation = ({ handlePrevStep }) => {
   // Utiliza useSelector para seleccionar los valores del estado global que necesitas
   const { brand, model, failure, date, time } = useSelector(
     (state) => state.deviceAndAppointment
   );
 
+  const { id: userId } = useSelector((state) => state.user);
+
   const formattedDate = date ? new Date(date) : null;
+
+  const handleSubmit = async () => {
+    try {
+      // Realiza una solicitud HTTP al servidor para crear la reserva
+      const response = await axios.post(
+        "http://localhost:3001/api/reservation",
+        {
+          userId,
+          date,
+          startTime: time.split(" - ")[0], // Obtén startTime de time
+          endTime: time.split(" - ")[1], // Obtén endTime de time
+          additionalInfo: `Brand: ${brand}, Model: ${model}, Failure: ${failure}`, // Envía información adicional si es necesario
+        }
+      );
+
+      // Redirige a la página de confirmación después de la creación exitosa de la reserva
+      //history.push("/confirmation"); // Ajusta la ruta de la página de confirmación según tus necesidades
+      alert("reserva realizada satisfactoriamente");
+    } catch (error) {
+      console.error("Error creating reservation:", error);
+      // Maneja cualquier error de creación de reserva aquí
+    }
+  };
 
   return (
     <Card className="max-w-[320px]">

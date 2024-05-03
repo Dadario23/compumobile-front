@@ -21,6 +21,8 @@ import {
   setBrand,
   setModel,
   setFailure,
+  setDate,
+  setTime,
 } from "@/src/slices/deviceAndAppointmentSlice";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -34,12 +36,7 @@ interface Brand {
   name: string;
 }
 
-export function FormDeviceCheck({
-  formData,
-  setFormData,
-  handleNextStep,
-  handleChange,
-}) {
+export function FormDeviceCheck({ handleNextStep }) {
   const dispatch = useDispatch();
   const { brand, model, failure } = useSelector(
     (state) => state.deviceAndAppointment
@@ -65,16 +62,22 @@ export function FormDeviceCheck({
   }, []);
 
   useEffect(() => {
-    if (selectedBrand !== "") {
-      //console.log("PETICION GET DE LOS MODELOS DE LA MARCA SELECCIONADA");
+    if (selectedBrand !== undefined) {
       fetch(
         `http://localhost:3001/api/models/getModelsByBrand?brand=${selectedBrand}`
       )
         .then((response) => response.json())
-        .then((data) => setModels(data));
+        .then((data) => setModels(data))
+        .catch((error) => console.error("Error fetching models:", error));
+      setSelectedModel(undefined);
     }
-    //console.log("EN EL USE EFFECT DE SELECTBRAND");
   }, [selectedBrand]);
+
+  useEffect(() => {
+    if (model) {
+      setSelectedModel(model);
+    }
+  }, [model]);
 
   const handleBrandChange = (value: string | undefined) => {
     dispatch(setBrand(value));
@@ -91,24 +94,17 @@ export function FormDeviceCheck({
     setSelectedFailure(value);
   };
 
-  /* useEffect(() => {
-    setSelectedBrand(brand || undefined);
-  }, [brand]);
+  const handleClear = () => {
+    dispatch(setBrand(""));
+    dispatch(setModel(""));
+    dispatch(setFailure(""));
+    dispatch(setDate(""));
+    dispatch(setTime(""));
+    setSelectedBrand("");
+    setSelectedModel("");
+    setSelectedFailure("");
+  };
 
-  useEffect(() => {
-    setSelectedModel(model || undefined);
-  }, [model]);
-
-  useEffect(() => {
-    setSelectedFailure(failure || undefined);
-  }, [failure]); */
-
-  // Aquí puedes agregar console.log para consoluegar el estado global
-  //console.log("Estado global - Marca:", brand);
-  //console.log("Estado global - Modelo:", model);
-  //console.log("Estado global - Falla:", failure);
-
-  //console.log("MARCA SELECCIONADA", selectedBrand);
   return (
     <Card className="max-w-[320px]">
       <CardHeader>
@@ -120,11 +116,7 @@ export function FormDeviceCheck({
           {/* RENDER MARCAS */}
           <div className="flex flex-col space-y-1.5">
             <Label htmlFor="brand">Marca del equipo</Label>
-            <Select
-              required
-              onValueChange={handleBrandChange}
-              value={selectedBrand}
-            >
+            <Select onValueChange={handleBrandChange} value={selectedBrand}>
               <SelectTrigger id="brand">
                 <SelectValue placeholder="Select" />
                 <SelectContent position="popper">
@@ -144,7 +136,7 @@ export function FormDeviceCheck({
             <Select
               disabled={!selectedBrand}
               onValueChange={handleModelChange}
-              value={selectedModel}
+              value={!selectedBrand ? "" : selectedModel}
             >
               <SelectTrigger id="model">
                 <SelectValue placeholder="Select" />
@@ -180,7 +172,10 @@ export function FormDeviceCheck({
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-end">
+      <CardFooter className="flex justify-between">
+        <Button onClick={handleClear} disabled={!selectedBrand}>
+          Limpiar
+        </Button>
         <Button
           onClick={handleNextStep}
           disabled={!selectedBrand || !selectedModel || !selectedFailure}

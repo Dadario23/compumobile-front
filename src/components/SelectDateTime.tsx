@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { es } from "date-fns/locale";
-import { format } from "date-fns";
 import axios from "axios";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -19,38 +18,32 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@radix-ui/react-label";
-import { useDispatch, useSelector } from "react-redux"; // Import useDispatch and useSelector
-import { setDate, setTime } from "@/src/slices/deviceAndAppointmentSlice"; // Import actions
-
-interface Schedule {
-  id: number;
-  hour: string;
-  available: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import { useDispatch, useSelector } from "react-redux";
+import { setDate, setTime } from "@/src/slices/deviceAndAppointmentSlice";
 
 const SelectDateTime = ({ handlePrevStep, handleNextStep }) => {
-  const dispatch = useDispatch(); // Use useDispatch hook
-  const { time } = useSelector((state) => state.deviceAndAppointment); // Access state from Redux store
-  const dateTimestamp = useSelector((state) => state.deviceAndAppointment.date); // Access timestamp from Redux store
+  const dispatch = useDispatch();
+  const { time } = useSelector((state) => state.deviceAndAppointment);
+  const dateTimestamp = useSelector((state) => state.deviceAndAppointment.date);
   const [selectedHour, setSelectedHour] = useState<string>(time || "");
   const [selectedDay, setSelectedDay] = useState<Date>();
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  //const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [availableSchedules, setAvailableSchedules] = useState([]);
 
   const handleDateChange = (day: Date) => {
-    setSelectedDay(day); // Actualiza el estado del componente
-
-    // Serializa el objeto Date a un timestamp
-    const dateTimestamp = day.getTime(); // Convertir a timestamp
-
-    // Despacha la acción con el timestamp como payload
-    dispatch(setDate(dateTimestamp)); // Despacha la acción (efecto secundario)
+    if (day !== undefined) {
+      // Borrar la selección de horario al cambiar de día
+      dispatch(setTime(""));
+      setSelectedHour(""); // Limpiar el estado local también
+      const dateTimestamp = day.getTime();
+      dispatch(setDate(dateTimestamp));
+    }
   };
 
   const handleHourChange = (hour: string) => {
     setSelectedHour(hour);
-    dispatch(setTime(hour)); // Dispatch action to update global state
+    dispatch(setTime(hour));
+    console.log("HORARIO SELECCIONADO", hour); // Usamos 'hour' en lugar de 'selectedHour'
   };
 
   useEffect(() => {
@@ -59,9 +52,10 @@ const SelectDateTime = ({ handlePrevStep, handleNextStep }) => {
         if (selectedDay) {
           const isoDate = selectedDay.toISOString();
           const response = await axios.get(
-            `http://localhost:3001/api/schedules/?date=${isoDate}`
+            `http://localhost:3001/api/calendar?date=${isoDate}`
           );
-          setSchedules(response.data);
+          console.log("RESPUESTA DEL SERVIDOR:", response.data);
+          setAvailableSchedules(response.data);
         }
       } catch (error) {
         console.error("Error fetching schedules:", error);
@@ -71,17 +65,9 @@ const SelectDateTime = ({ handlePrevStep, handleNextStep }) => {
     fetchSchedules();
 
     return () => {
-      // Cleanup function
+      // Limpieza
     };
   }, [selectedDay]);
-
-  const footer = selectedDay ? (
-    <>
-      <p>{format(selectedDay, "PPP")}.</p>
-    </>
-  ) : (
-    <p>Seleccione una fecha</p>
-  );
 
   // Loguear el estado global
   useEffect(() => {
@@ -89,14 +75,13 @@ const SelectDateTime = ({ handlePrevStep, handleNextStep }) => {
     if (dateTimestamp) {
       setSelectedDay(new Date(dateTimestamp));
     }
-  }, [dateTimestamp]); // Update state when dateTimestamp changes
+  }, [dateTimestamp]);
 
   return (
     <form>
       <Card className="max-w-[320px]">
         <CardHeader>
-          <CardTitle>Seleccione dia y horario a convenir</CardTitle>
-          {/* <CardDescription>Complete el siguiente formulario</CardDescription> */}
+          <CardTitle>Seleccione día y horario a convenir</CardTitle>
         </CardHeader>
         <CardContent>
           <Calendar
@@ -105,10 +90,9 @@ const SelectDateTime = ({ handlePrevStep, handleNextStep }) => {
             onSelect={handleDateChange}
             className="rounded-md border shadow"
             locale={es}
-            disabled={
-              (date) =>
-                date < new Date(new Date().setHours(0, 0, 0, 0)) || // Deshabilitar días anteriores al día actual
-                date.getDay() === 0 // Deshabilitamos los domingos
+            disabled={(date) =>
+              date < new Date(new Date().setHours(0, 0, 0, 0)) ||
+              date.getDay() === 0
             }
           />
         </CardContent>
@@ -120,21 +104,33 @@ const SelectDateTime = ({ handlePrevStep, handleNextStep }) => {
                 required
                 onValueChange={handleHourChange}
                 value={selectedHour}
-                disabled={!selectedDay}
+                disabled={!selectedDay} // Deshabilitar si no hay día seleccionado
               >
                 <SelectTrigger id="hour">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent position="popper">
-                  {/* <SelectLabel>Horarios disponibles</SelectLabel> */}
-                  {schedules.length > 0 &&
-                    schedules
-                      .filter((schedule) => schedule.available)
-                      .map((schedule) => (
-                        <SelectItem key={schedule.id} value={schedule.hour}>
-                          {schedule.hour}
-                        </SelectItem>
-                      ))}
+                  {availableSchedules.length > 0 &&
+                    availableSchedules
+                      .filter(
+                        (availableSchedule) => availableSchedule.availability
+                      )
+                      .map((availableSchedule) => {
+                        const startTime = availableSchedule.startTime.substring(
+                          0,
+                          5
+                        ); // Recortar los segundos y los dos últimos caracteres
+                        const endTime = availableSchedule.endTime.substring(
+                          0,
+                          5
+                        );
+                        const value = `${startTime} - ${endTime}`; // Recortar los segundos y los dos últimos caracteres
+                        return (
+                          <SelectItem key={availableSchedule.id} value={value}>
+                            {startTime} - {endTime}
+                          </SelectItem>
+                        );
+                      })}
                 </SelectContent>
               </Select>
             </div>
@@ -144,7 +140,7 @@ const SelectDateTime = ({ handlePrevStep, handleNextStep }) => {
           <Button onClick={handlePrevStep}>Regresar</Button>
           <Button
             onClick={handleNextStep}
-            disabled={!selectedDay || !selectedHour}
+            disabled={!selectedDay || !selectedHour} // Deshabilitar si no hay día o hora seleccionados
           >
             Continuar
           </Button>
