@@ -3,9 +3,9 @@ import { Roboto } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 
 import "@/styles/globals.css";
-import "react-toastify/dist/ReactToastify.css";
 import { StoreProvider } from "@/state/StoreProvider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "sonner";
 
 const roboto = Roboto({
   weight: "400",
@@ -33,6 +33,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>

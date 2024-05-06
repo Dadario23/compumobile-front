@@ -16,9 +16,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { toast, ToastContainer } from "react-toastify";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { toast } from "sonner";
 
 const formSchema = z
   .object({
@@ -62,18 +62,25 @@ export default function RegisterPage() {
       );
 
       //console.log("RESPUESTA DEL SERVIDOR", response.data);
-      toast.success("Usuario registrado con exito");
+      toast.success("usuario registrado con éxito", {
+        className: "fixed inset-x-0 top-0 mx-auto",
+        duration: 2000,
+      });
       router.push("/");
     } catch (error) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        console.log("MENSAJE DEL SERVIDOR", error.response.data.error);
-        toast.error(error.response.data.error);
+        //console.log("MENSAJE DEL SERVIDOR", error.response.data.error);
+        toast.error(error.response.data.error, {
+          duration: 2000,
+        });
       } else {
         console.error(
           "Error del servidor: Error en el servidor, intente más tarde ...",
           error
         );
-        toast.error("Error en el servidor, intente más tarde ...");
+        toast.error("Error en el servidor, intente más tarde ...", {
+          duration: 2000,
+        });
       }
     }
   };
@@ -241,7 +248,6 @@ export default function RegisterPage() {
           </Button>
         </form>
       </Form>
-      <ToastContainer />
     </main>
   );
 }

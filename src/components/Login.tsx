@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "next/navigation"; // Importamos useRouter de next/router
-import { toast, ToastContainer } from "react-toastify";
+import { useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { z, ZodType } from "zod";
@@ -21,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -69,7 +69,9 @@ const Login: React.FC = () => {
       console.log("Respuesta del servidor:", response.data);
 
       dispatch(set(response.data));
-      toast.success("Usuario logueado satisfactoriamente");
+      toast.success("Usuario logueado satisfactoriamente", {
+        duration: 2000,
+      });
       setAuthenticated(true); // Usuario autenticado correctamente
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -77,7 +79,9 @@ const Login: React.FC = () => {
           console.log("El correo electrónico no se encuentra registrado.");
           console.error("Mensaje de error:", error.response?.data?.error);
         } else {
-          toast(`${error.response?.data?.error}`);
+          toast.error(`${error.response?.data?.error}`, {
+            duration: 2000,
+          });
           console.error("Error al enviar datos:", error);
         }
       } else {
@@ -169,7 +173,6 @@ const Login: React.FC = () => {
           </Button>
         </form>
       </Form>
-      <ToastContainer />
     </main>
   );
 };
