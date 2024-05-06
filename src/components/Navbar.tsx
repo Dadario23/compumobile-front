@@ -6,6 +6,7 @@ import { clear } from "@/state/user";
 import { ModeToggle } from "./ModeToggle";
 import logoutIcon from "../assets/icons8-logout-50.png";
 import Image from "next/image";
+import DropdownMenuDemo from "@/components/DropdownMenu";
 
 const Navbar: React.FC = () => {
   const router = useRouter();
@@ -56,14 +57,14 @@ const Navbar: React.FC = () => {
         >
           Reparar
         </a>
-        <a
+        {/* <a
           onClick={() => handleClickProfile()}
           className="transition-colors text-foreground/60 hover:text-foreground/80 cursor-pointer"
           target="_blank"
           rel="noreferrer"
         >
           Mi perfil
-        </a>
+        </a> */}
         <a
           onClick={() => handleClickDevice()}
           className="transition-colors text-foreground/60 hover:text-foreground/80 cursor-pointer"
@@ -72,21 +73,22 @@ const Navbar: React.FC = () => {
         >
           Mi equipo
         </a>
-        <a
+        {/* <a
           onClick={() => clickLogout()}
           className="transition-colors text-foreground/60 hover:text-foreground/80 cursor-pointer"
           target="_blank"
           rel="noreferrer"
         >
           <Image width="25" height="25" src={logoutIcon} alt="exit--v2" />
-        </a>
-        <img
+        </a> */}
+        {/* <img
           width="25"
           height="25"
           src="https://img.icons8.com/ios-filled/50/exit.png"
           alt="exit"
-        />
+        /> */}
 
+        <DropdownMenuDemo />
         <ModeToggle />
       </div>
     </div>
