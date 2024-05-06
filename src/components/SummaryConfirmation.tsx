@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -9,11 +8,22 @@ import {
   CardTitle,
 } from "./ui/card";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
+import { Toaster, toast } from "sonner";
+import { useRouter } from "next/navigation"; // Importamos useRouter de next/router
+import {
+  setBrand,
+  setDate,
+  setFailure,
+  setModel,
+  setTime,
+} from "@/slices/deviceAndAppointmentSlice";
 
 const SummaryConfirmation = ({ handlePrevStep }) => {
-  // Utiliza useSelector para seleccionar los valores del estado global que necesitas
+  const router = useRouter();
+  const dispatch = useDispatch();
+
   const { brand, model, failure, date, time } = useSelector(
     (state) => state.deviceAndAppointment
   );
@@ -37,12 +47,23 @@ const SummaryConfirmation = ({ handlePrevStep }) => {
       );
 
       // Redirige a la página de confirmación después de la creación exitosa de la reserva
-      //history.push("/confirmation"); // Ajusta la ruta de la página de confirmación según tus necesidades
-      alert("reserva realizada satisfactoriamente");
+      handleClear();
+      toast.success("reserva realizada satisfactoriamente", {
+        duration: 2000,
+      });
+      router.push("/"); // Ajusta la ruta de la página de confirmación según tus necesidades
     } catch (error) {
       console.error("Error creating reservation:", error);
       // Maneja cualquier error de creación de reserva aquí
     }
+  };
+
+  const handleClear = () => {
+    dispatch(setBrand(""));
+    dispatch(setModel(""));
+    dispatch(setFailure(""));
+    dispatch(setDate(""));
+    dispatch(setTime(""));
   };
 
   return (
@@ -66,6 +87,7 @@ const SummaryConfirmation = ({ handlePrevStep }) => {
         <Button onClick={handlePrevStep}>Regresar</Button>
         <Button onClick={handleSubmit}>Confirmar</Button>
       </CardFooter>
+      <Toaster />
     </Card>
   );
 };

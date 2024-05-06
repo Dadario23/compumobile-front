@@ -33,6 +33,10 @@ const Navbar: React.FC = () => {
     router.push("/profile");
   };
 
+  const handleClickDevice = () => {
+    router.push("/my-device");
+  };
+
   return (
     <div className="flex flex-col lg:flex-row items-center justify-between py-4 px-4 lg:px-8">
       <div className="flex items-center mx-4 lg:mx-0">
@@ -59,6 +63,14 @@ const Navbar: React.FC = () => {
           rel="noreferrer"
         >
           Mi perfil
+        </a>
+        <a
+          onClick={() => handleClickDevice()}
+          className="transition-colors text-foreground/60 hover:text-foreground/80 cursor-pointer"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Mi equipo
         </a>
         <a
           onClick={() => clickLogout()}
