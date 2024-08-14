@@ -41,7 +41,7 @@ export default function Page() {
         }
       })
       .catch((err) => {
-        console.error("Something was wrong...", err);
+        //console.error("Something was wrong...", err);
         setLoading(false); // En caso de error, detenemos el loading
       });
   }, [dispatch, router]);

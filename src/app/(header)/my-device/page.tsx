@@ -1,7 +1,8 @@
+import CardDevices from "@/components/CardDevices";
 import React from "react";
 
 const devicePage = () => {
-  return <div>devicePage</div>;
+  return <CardDevices />;
 };
 
 export default devicePage;

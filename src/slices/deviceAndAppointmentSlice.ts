@@ -6,6 +6,7 @@ const initialState = {
   failure: "",
   date: null,
   time: null,
+  idHour: null,
 };
 
 export const deviceAndAppointmentSlice = createSlice({
@@ -27,10 +28,13 @@ export const deviceAndAppointmentSlice = createSlice({
     setTime: (state, action) => {
       state.time = action.payload;
     },
+    setIdHour: (state, action) => {
+      state.idHour = action.payload;
+    },
   },
 });
 
-export const { setBrand, setModel, setFailure, setDate, setTime } =
+export const { setBrand, setModel, setFailure, setDate, setTime, setIdHour } =
   deviceAndAppointmentSlice.actions;
 
 export default deviceAndAppointmentSlice.reducer;

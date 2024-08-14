@@ -3,6 +3,7 @@ import { Roboto } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 
 import "@/styles/globals.css";
+
 import { StoreProvider } from "@/state/StoreProvider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";

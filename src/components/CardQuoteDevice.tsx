@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,29 +17,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast, Toaster } from "sonner";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
 import {
   setBrand,
-  setModel,
-  setFailure,
   setDate,
-  setTime,
+  setFailure,
   setIdHour,
-} from "@/src/slices/deviceAndAppointmentSlice";
-import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
-import { toast, Toaster } from "sonner";
+  setModel,
+  setTime,
+} from "@/slices/deviceAndAppointmentSlice";
 
-interface Model {
-  id: number;
-  name: string;
-}
-
-interface Brand {
-  id: number;
-  name: string;
-}
-
-export function FormDeviceCheck({ handleNextStep }) {
+const CardQuoteDevice = () => {
   const dispatch = useDispatch();
   const { brand, model, failure } = useSelector(
     (state) => state.deviceAndAppointment
@@ -125,18 +115,17 @@ export function FormDeviceCheck({ handleNextStep }) {
       toast.success("dispositivo registrado exitosamente", {
         duration: 2000,
       });
-      handleNextStep();
+      /* handleNextStep(); */
     } catch (error) {
       console.error("Error registering device:", error);
     }
   };
-
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Presupuestá tu equipo</h1>
-      <Card className="max-w-[320px]">
+      {/* <h1 className="text-2xl font-bold mb-4">Presupuestá tu equipo</h1> */}
+      <Card>
         <CardHeader>
-          {/* <CardTitle>en el momento</CardTitle> */}
+          <CardTitle>Presupuestar mi equipo</CardTitle>
           <CardDescription>Obtené el presupuesto en el momento</CardDescription>
         </CardHeader>
         <CardContent>
@@ -217,4 +206,6 @@ export function FormDeviceCheck({ handleNextStep }) {
       </Card>
     </div>
   );
-}
+};
+
+export default CardQuoteDevice;

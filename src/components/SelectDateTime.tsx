@@ -19,31 +19,46 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@radix-ui/react-label";
 import { useDispatch, useSelector } from "react-redux";
-import { setDate, setTime } from "@/src/slices/deviceAndAppointmentSlice";
+import {
+  setDate,
+  setTime,
+  setIdHour,
+} from "@/src/slices/deviceAndAppointmentSlice";
 
 const SelectDateTime = ({ handlePrevStep, handleNextStep }) => {
   const dispatch = useDispatch();
-  const { time } = useSelector((state) => state.deviceAndAppointment);
+  const { time, idHour } = useSelector((state) => state.deviceAndAppointment);
   const dateTimestamp = useSelector((state) => state.deviceAndAppointment.date);
-  const [selectedHour, setSelectedHour] = useState<string>(time || "");
-  const [selectedDay, setSelectedDay] = useState<Date>();
-  //const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [selectedHour, setSelectedHour] = useState({ hour: time, id: idHour });
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [availableSchedules, setAvailableSchedules] = useState([]);
 
-  const handleDateChange = (day: Date) => {
-    if (day !== undefined) {
-      // Borrar la selección de horario al cambiar de día
+  const handleDateChange = (day: Date | null | undefined) => {
+    if (day) {
       dispatch(setTime(""));
-      setSelectedHour(""); // Limpiar el estado local también
+      dispatch(setIdHour(null));
+      setSelectedHour({ hour: "", id: null });
       const dateTimestamp = day.getTime();
       dispatch(setDate(dateTimestamp));
+      setSelectedDay(day);
     }
   };
 
-  const handleHourChange = (hour: string) => {
-    setSelectedHour(hour);
-    dispatch(setTime(hour));
-    console.log("HORARIO SELECCIONADO", hour); // Usamos 'hour' en lugar de 'selectedHour'
+  const handleHourChange = (value: string) => {
+    try {
+      const parsedValue = JSON.parse(value);
+      setSelectedHour(parsedValue);
+      dispatch(setTime(parsedValue.hour));
+      dispatch(setIdHour(parsedValue.id));
+      console.log(
+        "HORARIO SELECCIONADO",
+        parsedValue.hour,
+        "ID HORARIO",
+        parsedValue.id
+      );
+    } catch (error) {
+      console.error("Error parsing value:", error);
+    }
   };
 
   useEffect(() => {
@@ -52,10 +67,12 @@ const SelectDateTime = ({ handlePrevStep, handleNextStep }) => {
         if (selectedDay) {
           const isoDate = selectedDay.toISOString();
           const response = await axios.get(
-            `http://localhost:3001/api/calendar?date=${isoDate}`
+            `http://localhost:3001/api/schedules?date=${isoDate}`
           );
           console.log("RESPUESTA DEL SERVIDOR:", response.data);
           setAvailableSchedules(response.data);
+        } else {
+          setAvailableSchedules([]);
         }
       } catch (error) {
         console.error("Error fetching schedules:", error);
@@ -63,19 +80,19 @@ const SelectDateTime = ({ handlePrevStep, handleNextStep }) => {
     };
 
     fetchSchedules();
-
-    return () => {
-      // Limpieza
-    };
   }, [selectedDay]);
 
-  // Loguear el estado global
   useEffect(() => {
-    // Convertir timestamp a objeto Date
     if (dateTimestamp) {
       setSelectedDay(new Date(dateTimestamp));
     }
   }, [dateTimestamp]);
+
+  useEffect(() => {
+    if (!selectedDay) {
+      setSelectedHour({ hour: "", id: null });
+    }
+  }, [selectedDay]);
 
   return (
     <form>
@@ -103,44 +120,41 @@ const SelectDateTime = ({ handlePrevStep, handleNextStep }) => {
               <Select
                 required
                 onValueChange={handleHourChange}
-                value={selectedHour}
-                disabled={!selectedDay} // Deshabilitar si no hay día seleccionado
+                value={selectedHour.hour ? JSON.stringify(selectedHour) : ""}
+                disabled={!selectedDay}
               >
                 <SelectTrigger id="hour">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
+
                 <SelectContent position="popper">
                   {availableSchedules.length > 0 &&
-                    availableSchedules
-                      .filter(
-                        (availableSchedule) => availableSchedule.availability
-                      )
-                      .map((availableSchedule) => {
-                        const startTime = availableSchedule.startTime.substring(
+                    availableSchedules.map((schedule) => {
+                      const value = JSON.stringify({
+                        hour: `${schedule.startHour.substring(
                           0,
                           5
-                        ); // Recortar los segundos y los dos últimos caracteres
-                        const endTime = availableSchedule.endTime.substring(
-                          0,
-                          5
-                        );
-                        const value = `${startTime} - ${endTime}`; // Recortar los segundos y los dos últimos caracteres
-                        return (
-                          <SelectItem key={availableSchedule.id} value={value}>
-                            {startTime} - {endTime}
-                          </SelectItem>
-                        );
-                      })}
+                        )} - ${schedule.endHour.substring(0, 5)}`,
+                        id: schedule.id,
+                      });
+                      return (
+                        <SelectItem key={schedule.id} value={value}>
+                          {schedule.startHour.substring(0, 5)} -{" "}
+                          {schedule.endHour.substring(0, 5)}
+                        </SelectItem>
+                      );
+                    })}
                 </SelectContent>
               </Select>
             </div>
           </div>
         </CardContent>
+
         <CardFooter className="flex justify-between">
           <Button onClick={handlePrevStep}>Regresar</Button>
           <Button
             onClick={handleNextStep}
-            disabled={!selectedDay || !selectedHour} // Deshabilitar si no hay día o hora seleccionados
+            disabled={!selectedDay || !selectedHour.hour}
           >
             Continuar
           </Button>

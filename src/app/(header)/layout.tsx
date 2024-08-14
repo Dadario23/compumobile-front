@@ -1,5 +1,4 @@
 "use client";
-import Navbar from "@/components/Navbar";
 import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import authenticateRoute from "@/utils/routeAuthenticator";
@@ -7,6 +6,7 @@ import { useDispatch } from "react-redux";
 import axios from "axios";
 import { set } from "@/state/user";
 import { setAllUsers } from "@/state/allUsers";
+import Header from "@/components/Header";
 
 export default function HeaderLayout({
   children,
@@ -65,12 +65,8 @@ export default function HeaderLayout({
 
   return (
     <>
-      <Navbar />
-      <div className="mx-auto max-w-screen-lg px-4">
-        {" "}
-        {/* Ancho máximo para escritorio y márgenes a los lados */}
-        {children}
-      </div>
+      <Header />
+      <div className="container mx-auto px-8 lg:px-12">{children}</div>
     </>
   );
 }
