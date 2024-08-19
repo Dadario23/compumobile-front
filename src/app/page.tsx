@@ -1,17 +1,19 @@
 "use client";
-import { useRouter } from "next/navigation"; // Importamos useRouter de next/router
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { set } from "@/state/user";
 import { setAllUsers } from "@/state/allUsers";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import Login from "@/components/Login";
+import { SkeletonDemo } from "@/components/Skeleton";
+import { SkeletonCard } from "@/components/SkeletonCard";
 
 export default function Page() {
   const [loading, setLoading] = useState<boolean>(true);
   const [userExists, setUserExists] = useState<boolean>(false);
   const dispatch = useDispatch();
-  const router = useRouter(); // Usamos useRouter para la redirección
+  const router = useRouter();
 
   useEffect(() => {
     axios
@@ -32,41 +34,44 @@ export default function Page() {
                   dispatch(setAllUsers(res2.data));
                 }
               });
-            router.push("/dashboard"); // Redireccionamos al dashboard si es admin
+            router.push("/dashboard");
           } else {
-            router.push("/home"); // Redireccionamos a home si no es admin
+            router.push("/home");
           }
         } else {
           setLoading(false);
+          router.push("/home"); // Redirige a /home si el usuario no existe
         }
       })
       .catch((err) => {
-        //console.error("Something was wrong...", err);
-        setLoading(false); // En caso de error, detenemos el loading
+        setLoading(false);
+        router.push("/home"); // Redirige a /home si hay un error en la solicitud
       });
   }, [dispatch, router]);
 
   if (loading) {
     return (
-      <div className="flex w-full h-full items-center justify-center">
-        <div className="flex flex-row rounded-2xl p-4 text-white">
-          <div
-            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
-            role="status"
-          ></div>
+      <>
+        <div className="container mx-auto px-8 lg:px-12">
+          <div className="container mx-auto px-4 lg:px-20 py-4 flex items-center justify-between">
+            <SkeletonDemo />
+          </div>
         </div>
-      </div>
+
+        <div className="flex flex-col lg:flex-row items-center justify-center lg:space-x-8 space-y-8 lg:space-y-0 mt-8">
+          <div className="lg:w-1/2 flex justify-center">
+            <SkeletonCard />
+          </div>
+
+          <div className="lg:w-1/2 flex justify-center">
+            <SkeletonCard />
+          </div>
+        </div>
+      </>
     );
   }
 
-  if (!userExists) {
-    return (
-      <main>
-        <Login />
-      </main>
-    );
-  }
+  // Si no está cargando y no hay usuario, el componente ya habrá redirigido
 
-  // Si ya no está cargando y no se ha redirigido, renderizamos null
   return null;
 }

@@ -1,7 +1,6 @@
+"use client";
 import CardQuoteDevice from "@/components/CardQuoteDevice";
 import { CorouselHome } from "@/components/CorouselHome";
-import { Card } from "@/components/ui/card";
-import React from "react";
 
 const page = () => {
   return (

@@ -1,4 +1,22 @@
 "use client";
+import React from "react";
+import Header from "@/components/Header";
+
+export default function HeaderLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <>
+      <Header />
+      <div className="container mx-auto px-8 lg:px-12">{children}</div>
+    </>
+  );
+}
+
+/* 
+
 import React, { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import authenticateRoute from "@/utils/routeAuthenticator";
@@ -70,3 +88,4 @@ export default function HeaderLayout({
     </>
   );
 }
+*/

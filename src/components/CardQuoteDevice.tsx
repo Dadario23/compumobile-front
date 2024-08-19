@@ -17,8 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast, Toaster } from "sonner";
-import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setBrand,
@@ -28,6 +26,12 @@ import {
   setModel,
   setTime,
 } from "@/slices/deviceAndAppointmentSlice";
+import {
+  getPriceByBrandAndModel,
+  getUniqueBrandsWithId,
+  getModelsByBrand,
+} from "../services/googleSheetService";
+import { BudgetDialog } from "./BudgetDialog ";
 
 const CardQuoteDevice = () => {
   const dispatch = useDispatch();
@@ -49,20 +53,33 @@ const CardQuoteDevice = () => {
   ); // Inicializar con la falla seleccionada del estado global si está disponible
 
   useEffect(() => {
-    // Realizar una solicitud HTTP al endpoint de marcas
-    fetch("http://localhost:3001/api/brands/getAllBrands")
-      .then((response) => response.json())
-      .then((data) => setBrands(data));
+    // Obtener las marcas únicas al montar el componente
+    const fetchBrands = async () => {
+      try {
+        const uniqueBrands = await getUniqueBrandsWithId(); // Llama a la función para obtener las marcas
+        console.log("marcas", uniqueBrands);
+        setBrands(uniqueBrands);
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+      }
+    };
+
+    fetchBrands();
   }, []);
 
   useEffect(() => {
     if (selectedBrand !== undefined) {
-      fetch(
-        `http://localhost:3001/api/models/getModelsByBrand?brand=${selectedBrand}`
-      )
-        .then((response) => response.json())
-        .then((data) => setModels(data))
-        .catch((error) => console.error("Error fetching models:", error));
+      // Obtener los modelos filtrados por la marca seleccionada
+      const fetchModels = async () => {
+        try {
+          const models = await getModelsByBrand(selectedBrand);
+          setModels(models);
+        } catch (error) {
+          console.error("Error fetching models:", error);
+        }
+      };
+
+      fetchModels();
       setSelectedModel(undefined);
     }
   }, [selectedBrand]);
@@ -101,31 +118,26 @@ const CardQuoteDevice = () => {
   };
 
   const handleSubmit = async () => {
-    // Obtener el id del usuario desde el estado global o desde donde lo tengas disponible
-    //const userId = 1; // Cambia esto según cómo obtienes el id del usuario
-
-    try {
-      await axios.post("http://localhost:3001/api/devices/register", {
-        brand: selectedBrand,
-        model: selectedModel,
-        fail: selectedFailure,
-        userId: userId,
-      });
-      // Continuar al siguiente paso
-      toast.success("dispositivo registrado exitosamente", {
-        duration: 2000,
-      });
-      /* handleNextStep(); */
-    } catch (error) {
-      console.error("Error registering device:", error);
-    }
+    getPriceByBrandAndModel(selectedBrand, selectedModel).then((price) => {
+      console.log("marca seleccionada", selectedBrand);
+      console.log("modelo seleccionado", selectedModel);
+      if (price) {
+        alert(
+          `El cambio de pantalla para su equipo ${selectedBrand} ${selectedModel} es de ${price}`
+        );
+      } else {
+        console.log("Producto no encontrado");
+      }
+    });
+    alert("PRESUPUESTANDO EQUIPO");
   };
+
   return (
     <div className="p-4">
       {/* <h1 className="text-2xl font-bold mb-4">Presupuestá tu equipo</h1> */}
       <Card>
         <CardHeader>
-          <CardTitle>Presupuestar mi equipo</CardTitle>
+          <CardTitle>Presupuestar reparación</CardTitle>
           <CardDescription>Obtené el presupuesto en el momento</CardDescription>
         </CardHeader>
         <CardContent>
@@ -180,12 +192,7 @@ const CardQuoteDevice = () => {
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent position="popper">
-                  <SelectItem value="no-charge">No carga</SelectItem>
-                  <SelectItem value="no-image">No da imagen</SelectItem>
-                  <SelectItem value="logo-stuck">
-                    Se queda en el logo
-                  </SelectItem>
-                  <SelectItem value="not-turning-on">No enciende</SelectItem>
+                  <SelectItem value="no-image">Cambio de pantalla</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -201,8 +208,8 @@ const CardQuoteDevice = () => {
           >
             Presupuestar
           </Button>
+          <BudgetDialog />
         </CardFooter>
-        <Toaster />
       </Card>
     </div>
   );
