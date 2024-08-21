@@ -31,33 +31,33 @@ import {
   getUniqueBrandsWithId,
   getModelsByBrand,
 } from "../services/googleSheetService";
-import { BudgetDialog } from "./BudgetDialog ";
+import BudgetDialog from "./BudgetDialog ";
 
 const CardQuoteDevice = () => {
   const dispatch = useDispatch();
   const { brand, model, failure } = useSelector(
     (state) => state.deviceAndAppointment
   );
-  const { id: userId } = useSelector((state) => state.user);
 
   const [brands, setBrands] = useState<Brand[]>([]);
   const [selectedBrand, setSelectedBrand] = useState<string | undefined>(
     brand || undefined
-  ); // Inicializar con la marca seleccionada del estado global si está disponible
+  );
   const [models, setModels] = useState<Model[]>([]);
   const [selectedModel, setSelectedModel] = useState<string | undefined>(
     model || undefined
-  ); // Inicializar con el modelo seleccionado del estado global si está disponible
+  );
   const [selectedFailure, setSelectedFailure] = useState<string | undefined>(
     failure || undefined
-  ); // Inicializar con la falla seleccionada del estado global si está disponible
+  );
+
+  const [repairCost, setRepairCost] = useState<number | null>(null);
+  const [isDialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
-    // Obtener las marcas únicas al montar el componente
     const fetchBrands = async () => {
       try {
-        const uniqueBrands = await getUniqueBrandsWithId(); // Llama a la función para obtener las marcas
-        console.log("marcas", uniqueBrands);
+        const uniqueBrands = await getUniqueBrandsWithId();
         setBrands(uniqueBrands);
       } catch (error) {
         console.error("Error fetching brands:", error);
@@ -69,7 +69,6 @@ const CardQuoteDevice = () => {
 
   useEffect(() => {
     if (selectedBrand !== undefined) {
-      // Obtener los modelos filtrados por la marca seleccionada
       const fetchModels = async () => {
         try {
           const models = await getModelsByBrand(selectedBrand);
@@ -118,23 +117,25 @@ const CardQuoteDevice = () => {
   };
 
   const handleSubmit = async () => {
-    getPriceByBrandAndModel(selectedBrand, selectedModel).then((price) => {
-      console.log("marca seleccionada", selectedBrand);
-      console.log("modelo seleccionado", selectedModel);
-      if (price) {
-        alert(
-          `El cambio de pantalla para su equipo ${selectedBrand} ${selectedModel} es de ${price}`
-        );
-      } else {
-        console.log("Producto no encontrado");
-      }
-    });
-    alert("PRESUPUESTANDO EQUIPO");
+    const price = await getPriceByBrandAndModel(selectedBrand, selectedModel);
+    if (price) {
+      const costData = {
+        brand: selectedBrand,
+        model: selectedModel,
+        failure: selectedFailure,
+        price,
+      };
+      setRepairCost(costData);
+      setDialogOpen(true); // Abre el diálogo
+    } else {
+      console.log("Producto no encontrado");
+    }
   };
+
+  const isSubmitDisabled = !selectedBrand || !selectedModel || !selectedFailure;
 
   return (
     <div className="p-4">
-      {/* <h1 className="text-2xl font-bold mb-4">Presupuestá tu equipo</h1> */}
       <Card>
         <CardHeader>
           <CardTitle>Presupuestar reparación</CardTitle>
@@ -143,11 +144,11 @@ const CardQuoteDevice = () => {
         <CardContent>
           <div className="grid w-full items-center gap-4">
             {/* RENDER MARCAS */}
-            <div className="flex flex-col space-y-1.5">
+            <div className="flex flex-col space-y-1.5 w-full">
               <Label htmlFor="brand">Marca</Label>
               <Select onValueChange={handleBrandChange} value={selectedBrand}>
-                <SelectTrigger id="brand">
-                  <SelectValue placeholder="Select" />
+                <SelectTrigger id="brand" className="w-full">
+                  <SelectValue placeholder="Selecciona la marca" />
                   <SelectContent position="popper">
                     {brands.map((brand) => (
                       <SelectItem key={brand.id} value={brand.name}>
@@ -159,16 +160,15 @@ const CardQuoteDevice = () => {
               </Select>
             </div>
             {/*  RENDER MODELOS */}
-            <div className="flex flex-col space-y-1.5">
+            <div className="flex flex-col space-y-1.5 w-full">
               <Label htmlFor="model">Modelo</Label>
-
               <Select
                 disabled={!selectedBrand}
                 onValueChange={handleModelChange}
                 value={!selectedBrand ? "" : selectedModel}
               >
-                <SelectTrigger id="model">
-                  <SelectValue placeholder="Select" />
+                <SelectTrigger id="model" className="w-full">
+                  <SelectValue placeholder="Selecciona el modelo" />
                 </SelectTrigger>
                 <SelectContent position="popper">
                   {models.length > 0 &&
@@ -181,15 +181,15 @@ const CardQuoteDevice = () => {
               </Select>
             </div>
             {/*  RENDER FALLAS */}
-            <div className="flex flex-col space-y-1.5">
+            <div className="flex flex-col space-y-1.5 w-full">
               <Label htmlFor="issue">Falla</Label>
               <Select
                 disabled={!selectedBrand || !selectedModel}
                 onValueChange={handleFailureChange}
                 value={selectedFailure}
               >
-                <SelectTrigger id="issue">
-                  <SelectValue placeholder="Select" />
+                <SelectTrigger id="issue" className="w-full">
+                  <SelectValue placeholder="Selecciona la falla" />
                 </SelectTrigger>
                 <SelectContent position="popper">
                   <SelectItem value="no-image">Cambio de pantalla</SelectItem>
@@ -202,13 +202,13 @@ const CardQuoteDevice = () => {
           <Button onClick={handleClear} disabled={!selectedBrand}>
             Limpiar
           </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={!selectedBrand || !selectedModel || !selectedFailure}
-          >
-            Presupuestar
-          </Button>
-          <BudgetDialog />
+          <BudgetDialog
+            cost={repairCost}
+            isOpen={isDialogOpen}
+            onOpenChange={setDialogOpen}
+            onSubmit={handleSubmit}
+            disabled={isSubmitDisabled} // Condición para habilitar/deshabilitar el botón
+          />
         </CardFooter>
       </Card>
     </div>

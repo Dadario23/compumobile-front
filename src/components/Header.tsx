@@ -34,7 +34,7 @@ export default function Header() {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-600 shadow-lg">
+    <div className="bg-white dark:bg-slate-900 shadow-lg">
       <div className="container mx-auto px-4 lg:px-20 py-4 flex items-center justify-between">
         {/* Logo */}
         <h1
@@ -50,16 +50,16 @@ export default function Header() {
             className="space-y-2 cursor-pointer"
             onClick={() => setIsNavOpen((prev) => !prev)}
           >
-            <span className="block h-0.5 w-8 bg-gray-800"></span>
-            <span className="block h-0.5 w-8 bg-gray-800"></span>
-            <span className="block h-0.5 w-8 bg-gray-800"></span>
+            <span className="block h-0.5 w-8 bg-slate-950"></span>
+            <span className="block h-0.5 w-8 bg-slate-950"></span>
+            <span className="block h-0.5 w-8 bg-slate-950"></span>
           </div>
         </div>
 
         {/* Menú de navegación */}
         <div
           id="navigation"
-          className={`lg:flex lg:items-center lg:space-x-8 absolute top-full left-0 right-0 bg-white dark:bg-gray-600 shadow-lg lg:shadow-none ${
+          className={`lg:flex lg:items-center lg:space-x-8 absolute top-full left-0 right-0 bg-white dark:bg-slate-900 shadow-lg lg:shadow-none ${
             isNavOpen ? "block" : "hidden"
           } lg:static lg:block lg:space-y-0 space-y-4 mt-4 lg:mt-0`}
         >
@@ -70,20 +70,20 @@ export default function Header() {
             <Image src={homeIcon} alt={"Home"} height={25} width={25} />
           </a>
           <a
-            onClick={() => handleClick("/my-device")}
+            /* onClick={() => handleClick("/my-device")} */
             className="transition-colors text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 cursor-pointer"
           >
             <Image src={phoneIcon} alt={"device"} height={25} width={25} />
           </a>
           <a
-            onClick={() => handleClick("/profile")}
+            /* onClick={() => handleClick("/profile")} */
             className="transition-colors cursor-pointer"
           >
             <Image src={userIcon} alt={"user"} height={25} width={25} />
           </a>
           <ModeToggle />
           <a
-            onClick={clickLogout}
+            /* onClick={clickLogout} */
             className="transition-colors text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 cursor-pointer"
           >
             <Image width="25" height="25" src={logoutIcon} alt="exit--v2" />
@@ -97,7 +97,7 @@ export default function Header() {
           <div
             className={`${
               isNavOpen ? "flex" : "hidden"
-            } fixed inset-0 bg-white dark:bg-gray-600 z-10 flex-col justify-evenly items-center`}
+            } fixed inset-0 bg-white dark:bg-slate-900 z-10 flex-col justify-evenly items-center`}
           >
             <div
               className="absolute top-0 right-0 px-8 py-8 cursor-pointer"
