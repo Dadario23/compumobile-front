@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { useForm } from "react-hook-form";
 import { z, ZodType } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -53,7 +53,7 @@ const Login: React.FC = () => {
     } else {
       setLoading(false);
     }
-  }, [authenticated]);
+  }, [authenticated, router, user.isAdmin]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
