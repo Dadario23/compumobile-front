@@ -22,7 +22,7 @@ export default function HeaderLayout({
       <div className="container mx-auto px-8 lg:px-12">{children}</div>
 
       <FloatingWhatsApp
-        phoneNumber="+5411506110043"
+        phoneNumber="+541150610043"
         accountName="Compumobile"
         avatar="https://scontent.feze8-1.fna.fbcdn.net/v/t39.30808-6/301515911_492578456250850_3464074576141268515_n.png?_nc_cat=108&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeFqqVcDEl6XmVMSKYmm_0ZgnxilefH82vSfGKV58fza9DcLqYAB9XUIw9S2mKCzGk4&_nc_ohc=bFOoTwdWyvAQ7kNvgFli5DX&_nc_ht=scontent.feze8-1.fna&_nc_gid=AfO8jC3PpxcY26k55t1ZCff&oh=00_AYDJWI63pjUI-Rf-u4peQcf51_Z1WB0p3g_08JU6LVbndw&oe=66CAFACE"
         statusMessage="Normalmente responde en 10 minutos"
