@@ -10,13 +10,21 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import carrouselImage from "../assets/carrousel.jpeg";
 import Image from "next/image";
+
+// Importa las nuevas imágenes
+import mobileApp from "../assets/apps.svg";
+import choreList from "../assets/chore_list.svg";
+import Fixing from "../assets/fixing.svg";
+import inSync from "../assets/in_sync.svg";
 
 export function CorouselHome() {
   const plugin = React.useRef(
     Autoplay({ delay: 5000, stopOnInteraction: true })
   );
+
+  // Lista de las nuevas imágenes
+  const images = [mobileApp, choreList, Fixing, inSync];
 
   return (
     <div className="p-4">
@@ -27,12 +35,12 @@ export function CorouselHome() {
         onMouseLeave={plugin.current.reset}
       >
         <CarouselContent>
-          {Array.from({ length: 5 }).map((_, index) => (
+          {images.map((image, index) => (
             <CarouselItem key={index}>
               <div className="p-1">
                 <Card>
                   <CardContent className="flex aspect-square items-center justify-center p-6">
-                    <Image src={carrouselImage} alt="Carrousel Image" />
+                    <Image src={image} alt={`Carousel Image ${index + 1}`} />
                   </CardContent>
                 </Card>
               </div>

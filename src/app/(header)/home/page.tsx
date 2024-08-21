@@ -4,7 +4,7 @@ import { CorouselHome } from "@/components/CorouselHome";
 
 const page = () => {
   return (
-    <div className="flex flex-col lg:flex-row lg:space-x-8 space-y-8 lg:space-y-0 mt-8">
+    <div className="flex flex-col lg:flex-row lg:space-x-8 space-y-8 lg:space-y-0 mt-8 my-24">
       <div className="lg:w-1/2">
         <CorouselHome />
       </div>
