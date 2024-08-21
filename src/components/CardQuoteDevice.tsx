@@ -32,33 +32,49 @@ import {
   getModelsByBrand,
 } from "../services/googleSheetService";
 import BudgetDialog from "./BudgetDialog ";
+import { RootState } from "@/state/store";
+import { Brand, Model } from "@/types/Device";
+
+interface Cost {
+  brand: string;
+  model: string;
+  failure: string;
+  price: string;
+}
+
+interface BudgetDialogProps {
+  cost: Cost; // Cambiado para reflejar el tipo correcto
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: () => void;
+  disabled: boolean;
+}
 
 const CardQuoteDevice = () => {
   const dispatch = useDispatch();
   const { brand, model, failure } = useSelector(
-    (state) => state.deviceAndAppointment
+    (state: RootState) => state.deviceAndAppointment
   );
 
   const [brands, setBrands] = useState<Brand[]>([]);
-  const [selectedBrand, setSelectedBrand] = useState<string | undefined>(
-    brand || undefined
-  );
   const [models, setModels] = useState<Model[]>([]);
-  const [selectedModel, setSelectedModel] = useState<string | undefined>(
-    model || undefined
-  );
-  const [selectedFailure, setSelectedFailure] = useState<string | undefined>(
-    failure || undefined
-  );
+  const [selectedBrand, setSelectedBrand] = useState<string>("");
+  const [selectedModel, setSelectedModel] = useState<string>("");
+  const [selectedFailure, setSelectedFailure] = useState<string>("");
 
-  const [repairCost, setRepairCost] = useState<number | null>(null);
+  const [repairCost, setRepairCost] = useState<Cost | null>(null);
+
   const [isDialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchBrands = async () => {
       try {
         const uniqueBrands = await getUniqueBrandsWithId();
-        setBrands(uniqueBrands);
+        const formattedBrands = uniqueBrands.map((brand) => ({
+          ...brand,
+          id: brand.id.toString(), // Convertimos el id a string
+        }));
+        setBrands(formattedBrands);
       } catch (error) {
         console.error("Error fetching brands:", error);
       }
@@ -72,14 +88,18 @@ const CardQuoteDevice = () => {
       const fetchModels = async () => {
         try {
           const models = await getModelsByBrand(selectedBrand);
-          setModels(models);
+          const formattedModels = models.map((model) => ({
+            ...model,
+            id: model.id.toString(), // Convertimos el id a string
+          }));
+          setModels(formattedModels);
         } catch (error) {
           console.error("Error fetching models:", error);
         }
       };
 
       fetchModels();
-      setSelectedModel(undefined);
+      setSelectedModel("");
     }
   }, [selectedBrand]);
 
@@ -90,18 +110,21 @@ const CardQuoteDevice = () => {
   }, [model]);
 
   const handleBrandChange = (value: string | undefined) => {
-    dispatch(setBrand(value));
-    setSelectedBrand(value);
+    const brand = value ?? ""; // Asigna una cadena vacía si `value` es `undefined`
+    dispatch(setBrand(brand));
+    setSelectedBrand(brand);
   };
 
   const handleModelChange = (value: string | undefined) => {
-    dispatch(setModel(value));
-    setSelectedModel(value);
+    const model = value ?? ""; // Asigna una cadena vacía si `value` es `undefined`
+    dispatch(setModel(model));
+    setSelectedModel(model);
   };
 
   const handleFailureChange = (value: string | undefined) => {
-    dispatch(setFailure(value));
-    setSelectedFailure(value);
+    const failure = value ?? ""; // Asigna una cadena vacía si `value` es `undefined`
+    dispatch(setFailure(failure));
+    setSelectedFailure(failure);
   };
 
   const handleClear = () => {
@@ -119,13 +142,13 @@ const CardQuoteDevice = () => {
   const handleSubmit = async () => {
     const price = await getPriceByBrandAndModel(selectedBrand, selectedModel);
     if (price) {
-      const costData = {
+      const costData: Cost = {
         brand: selectedBrand,
         model: selectedModel,
         failure: selectedFailure,
         price,
       };
-      setRepairCost(costData);
+      setRepairCost(costData); // Ajuste aquí para que el tipo sea compatible
       setDialogOpen(true); // Abre el diálogo
     } else {
       console.log("Producto no encontrado");
@@ -203,7 +226,9 @@ const CardQuoteDevice = () => {
             Limpiar
           </Button>
           <BudgetDialog
-            cost={repairCost}
+            cost={
+              repairCost ?? { brand: "", model: "", failure: "", price: "" }
+            }
             isOpen={isDialogOpen}
             onOpenChange={setDialogOpen}
             onSubmit={handleSubmit}

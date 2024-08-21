@@ -11,18 +11,30 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const BudgetDialog = ({ cost, isOpen, onOpenChange, onSubmit, disabled }) => {
-  // Eliminar el símbolo de dólar y convertir a número
+interface Cost {
+  price: string;
+  brand: string;
+  model: string;
+  failure: string;
+}
+
+interface BudgetDialogProps {
+  cost: Cost;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: () => void;
+  disabled: boolean;
+}
+
+const BudgetDialog: React.FC<BudgetDialogProps> = ({
+  cost,
+  isOpen,
+  onOpenChange,
+  onSubmit,
+  disabled,
+}) => {
   const originalPrice = parseFloat(cost?.price.replace(/[$,]/g, "")) || 0;
-
-  // Agregar console.log para verificar el valor de originalPrice
-  console.log("Precio convertido a número (originalPrice):", originalPrice);
-
-  // Incrementar el precio en 25,000
   const adjustedPrice = originalPrice + 25000;
-
-  // Agregar console.log para verificar el valor de adjustedPrice
-  console.log("Precio ajustado (adjustedPrice):", adjustedPrice);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { Device } from "@/types/Device";
+import { RootState } from "@/state/store"; // Asegúrate de ajustar la ruta según sea necesario
 import {
   Card,
   CardContent,
@@ -14,7 +15,8 @@ import {
 import { Button } from "./ui/button";
 
 const CardDevices = () => {
-  const userId = useSelector((state) => state.user.id);
+  // Tipar el selector con RootState para evitar el error de 'unknown'
+  const userId = useSelector((state: RootState) => state.user.id);
   const [devices, setDevices] = useState<Device[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
